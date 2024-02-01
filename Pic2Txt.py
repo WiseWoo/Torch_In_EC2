@@ -16,19 +16,14 @@ from PIL import Image
 import numpy as np
 import torchvision.models as models
 
-
-
 EC2_sw=True
 Lambda_sw=False
 
 from flask_cors import CORS
 
-
-
 transform = transforms.Compose([
     transforms.Resize((256, 256)),
     transforms.ToTensor(),
-    # 추가적인 변환을 여기에 포함시킵니다.
 ])
 
 # Define Model
@@ -38,18 +33,18 @@ num_ftrs = model.fc.in_features
 model.fc = nn.Linear(num_ftrs, store_num)
 
 BUCKET_NAME = "mybucket"
-MODEL_NAME = "modelmy.pth"
-s3_client = boto3.client('s3' )
+MODEL_NAME = "mymodel.pth"
+s3_client = boto3.client('s3')
 
-if not os.path.isfile('/tmp/'+MODEL_NAME):
-    s3_client.download_file(BUCKET_NAME, MODEL_NAME, '/tmp/'+MODEL_NAME)
+if not os.path.isfile(MODEL_NAME):
+    s3_client.download_file(BUCKET_NAME, MODEL_NAME, MODEL_NAME)
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 model.to(device)
 if device == 'cpu':
-    model.load_state_dict(torch.load("/tmp/"+MODEL_NAME, map_location=torch.device('cpu')))
+    model.load_state_dict(torch.load(MODEL_NAME, map_location=torch.device('cpu')))
 else:
-    model.load_state_dict(torch.load("/tmp/"+MODEL_NAME))
+    model.load_state_dict(torch.load(+MODEL_NAME))
 model.eval()
 
 if EC2_sw:
@@ -65,7 +60,7 @@ if EC2_sw:
         try:
             data = request.json
             image_data = data['image']
-            image_data = image_data.split(",")[1]  # base64 인코딩된 부분만 추출
+            image_data = image_data.split(",")[1]  
             img = Image.open(io.BytesIO(base64.b64decode(image_data)))
             if img.mode == 'RGBA':
                 img = img.convert('RGB')
