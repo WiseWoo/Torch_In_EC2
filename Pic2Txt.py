@@ -37,10 +37,8 @@ model = models.resnet18(pretrained=False)
 num_ftrs = model.fc.in_features
 model.fc = nn.Linear(num_ftrs, store_num)
 
-BUCKET_NAME = "extractsignboard"
-# MODEL_NAME = os.environ.get('MODEL_NAME')
-# MODEL_NAME = "0030_quantized_resnet18.pth"
-MODEL_NAME = "0030_resnet18_trained_0.003.pth"
+BUCKET_NAME = "mybucket"
+MODEL_NAME = "modelmy.pth"
 s3_client = boto3.client('s3' )
 
 if not os.path.isfile('/tmp/'+MODEL_NAME):
